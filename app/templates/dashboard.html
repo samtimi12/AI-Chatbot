@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+  <div class="chat-header">AI Chatbot</div>
+
+  <!-- FAQ hints -->
+  <div id="faq-hints">
+    <strong>Try asking about:</strong>
+    <button class="faq-btn" data-msg="hours">Hours</button>
+    <button class="faq-btn" data-msg="pricing">Pricing</button>
+    <button class="faq-btn" data-msg="signup">Signup</button>
+    <button class="faq-btn" data-msg="features">Features</button>
+    <button class="faq-btn" data-msg="contact">Contact</button>
+  </div>
+
+  <!-- Chat window -->
+  <div id="chat-box"></div>
+
+  <!-- Input form -->
+  <form id="chat-form">
+    <input type="text" id="user-input" placeholder="Type a message..." required>
+    <button type="submit">Send</button>
+    <button type="button" id="request-human">Request Human</button>
+  </form>
+</div>
+
+<script>
+const form = document.getElementById("chat-form");
+const input = document.getElementById("user-input");
+const chatBox = document.getElementById("chat-box");
+const humanBtn = document.getElementById("request-human");
+const faqBtns = document.querySelectorAll(".faq-btn");
+
+function formatTime(isoString) {
+  const date = new Date(isoString);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMessage(sender, text, timestamp=null) {
+  const msg = document.createElement("div");
+  const time = timestamp ? `<span class="msg-time">${formatTime(timestamp)}</span>` : "";
+
+  // Match CSS classes from style.css
+  if (sender === "You") {
+    msg.classList.add("message", "user");
+  } else {
+    msg.classList.add("message", "bot");
+  }
+
+  msg.innerHTML = `${text} ${time}`;
+  chatBox.appendChild(msg);
+
+  // Animate in
+  setTimeout(() => msg.classList.add("show"), 10);
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+
+// Load chat history
+async function loadHistory() {
+  try {
+    const res = await fetch("/chat/history");
+    const history = await res.json();
+    history.forEach(m => addMessage(m.sender === "user" ? "You" : "Bot", m.text, m.timestamp));
+  } catch (err) {
+    console.error("Failed to load history", err);
+  }
+}
+loadHistory();
+
+async function sendMessage(message) {
+  addMessage("You", message, new Date().toISOString());
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+    const data = await res.json();
+    if (data.reply) addMessage("Bot", data.reply, new Date().toISOString());
+    else addMessage("Error", "Something went wrong.");
+  } catch (err) {
+    addMessage("Error", "Failed to send message.");
+  }
+}
+
+// Form submit
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const message = input.value.trim();
+  if (!message) return;
+  sendMessage(message);
+  input.value = "";
+});
+
+// Request Human button
+humanBtn.addEventListener("click", () => {
+  sendMessage("Request Human");
+});
+
+// FAQ button clicks
+faqBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const msg = btn.dataset.msg;
+    sendMessage(msg);
+  });
+});
+</script>
+{% endblock %}
