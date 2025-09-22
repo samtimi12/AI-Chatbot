@@ -91,3 +91,10 @@ For real-world deployment, the response generator can be replaced with:
 
 ##### License
 This project is released under the MIT License. You are free to use, modify, and distribute with attribution.
+
+<img width="1351" height="590" alt="Screenshot 2025-09-22 225617" src="https://github.com/user-attachments/assets/ce3c6e5e-9d2f-4953-819e-8a634b5a41a7" />
+<img width="1353" height="584" alt="Screenshot 2025-09-22 225549" src="https://github.com/user-attachments/assets/d3fe2e46-46df-46ad-8b6e-67bc72207d94" />
+<img width="1339" height="579" alt="Screenshot 2025-09-22 225440" src="https://github.com/user-attachments/assets/89387dc8-48f0-4889-b44b-611de0d8f602" />
+<img width="1345" height="577" alt="Screenshot 2025-09-22 225343" src="https://github.com/user-attachments/assets/37de42d9-d4cf-493b-a4c8-590f3fed5e40" />
+<img width="1333" height="705" alt="Screenshot 2025-09-22 225233" src="https://github.com/user-attachments/assets/f3e1c2e7-5e2c-4c96-a3c8-f247cc9f33e0" />
+<img width="1353" height="585" alt="Screenshot 2025-09-22 233041" src="https://github.com/user-attachments/assets/0623a335-1dd3-459b-8f65-b4dfc6c1654f" />
