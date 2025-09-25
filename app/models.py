@@ -10,7 +10,9 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)  # ✅ New field for admin
+    is_admin = db.Column(db.Boolean, default=False)  #  New field for admin
+    verified = db.Column(db.Boolean, default=False)
+
 
     messages = db.relationship('Message', backref='user', lazy=True)
 
@@ -34,7 +36,7 @@ class Message(db.Model):
     text = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     request_human = db.Column(db.Boolean, default=False)
-    handled = db.Column(db.Boolean, default=False)  # ✅ new column to track handled requests
+    handled = db.Column(db.Boolean, default=False)  #  new column to track handled requests
 
     def __repr__(self):
         return f"<Message {self.sender}: {self.text[:20]}>"

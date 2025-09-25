@@ -100,12 +100,12 @@ def chat_history():
 # -----------------------------
 # Admin Dashboard page
 # -----------------------------
-@chat_bp.route('/admin/dashboard')
+@chat_bp.route('/admin-dashboard')
 @login_required
-@admin_required
 def admin_dashboard():
+    if not current_user.is_admin:
+        return "Unauthorized", 403
     return render_template('admin_dashboard.html')
-
 # -----------------------------
 # View pending human requests (Admin only)
 # -----------------------------
