@@ -1,5 +1,12 @@
 # AI Chatbot Demo
 
+> **Update (2025-09-26):**
+> - Fully persistent chat history per user.
+> - Fixed chatbox scrolling and typing animation for a smoother UX.
+> - Admin dashboard buttons now styled consistently with login/signup buttons.
+> - OpenAI API integration added.
+> - Responsive layout improvements for larger and smaller screens.
+
 This is a portfolio-ready Flask application that demonstrates how to build an AI chatbot system with authentication, persistent conversations, and an admin escalation dashboard. The chatbot currently runs in **local mode** (using simulated responses instead of an external API) to keep the project self-contained. API integration can easily be added when scaling to production.
 
 ---

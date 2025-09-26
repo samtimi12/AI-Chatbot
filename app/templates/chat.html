@@ -3,19 +3,111 @@
 
 {% block content %}
 <div class="chat-container">
-  <div class="chat-header">AI Chatbot</div>
+  <div class="chat-header">
+    <h2>AI Chatbot</h2>
+  </div>
 
-  <div class="chat-messages">
+  <!-- Messages -->
+  <div class="chat-messages" id="chat-messages">
     {% for msg in messages %}
-      <div class="chat-msg {% if msg.sender.lower() in ['you','user'] %}user-msg{% else %}bot-msg{% endif %}">
+      <div class="message {% if msg.sender.lower() in ['you','user'] %}user{% else %}bot{% endif %}">
         {{ msg.text }}
       </div>
     {% endfor %}
   </div>
 
-  <form method="POST" class="chat-input">
-    <input type="text" name="message" placeholder="Type your message..." required>
+  <!-- Input -->
+  <form id="chat-form" class="chat-input">
+    <input type="text" id="message-input" name="message" placeholder="Type your message..." required>
     <button type="submit">Send</button>
   </form>
 </div>
+
+<script>
+document.getElementById("chat-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const input = document.getElementById("message-input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    const chatMessages = document.getElementById("chat-messages");
+
+    // append user message
+    const userMsg = document.createElement("div");
+    userMsg.className = "message user";
+    userMsg.textContent = message;
+    chatMessages.appendChild(userMsg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    input.value = "";
+
+    // create typing indicator (bot bubble)
+    const typingIndicator = document.createElement("div");
+    typingIndicator.className = "message bot typing-indicator fade-in";
+    typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+    chatMessages.appendChild(typingIndicator);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // call backend
+    const startTime = Date.now();
+    const res = await fetch("{{ url_for('chat.chat') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+
+    // ensure minimum typing delay
+    const minTypingTime = 500; // ms
+    const elapsed = Date.now() - startTime;
+    if (elapsed < minTypingTime) {
+        await new Promise(r => setTimeout(r, minTypingTime - elapsed));
+    }
+
+    // remove typing indicator
+    if (typingIndicator.parentNode) {
+        typingIndicator.remove();
+    }
+
+    // helper: convert **bold** to <strong> for display
+    function formatMessage(text) {
+        return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    // append bot reply letter by letter
+    function typeBotMessage(message) {
+        const formattedMessage = formatMessage(message);
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "message bot";
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        let i = 0;
+        function typeNext() {
+            if (i >= formattedMessage.length) return;
+            // handle HTML tags without breaking letters
+            if (formattedMessage[i] === '<') {
+                const endTag = formattedMessage.indexOf('>', i);
+                if (endTag !== -1) {
+                    msgDiv.innerHTML += formattedMessage.slice(i, endTag + 1);
+                    i = endTag + 1;
+                } else {
+                    msgDiv.innerHTML += formattedMessage[i];
+                    i++;
+                }
+            } else {
+                msgDiv.innerHTML += formattedMessage[i];
+                i++;
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            setTimeout(typeNext, 25); // 25ms per character
+        }
+        typeNext();
+    }
+
+    typeBotMessage(data.reply);
+});
+</script>
+
 {% endblock %}
